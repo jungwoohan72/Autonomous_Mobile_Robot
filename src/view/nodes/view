@@ -1,0 +1,127 @@
+#!/usr/bin/env python
+
+# Copyright (c) 2011, Willow Garage, Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+#    * Redistributions of source code must retain the above copyright
+#      notice, this list of conditions and the following disclaimer.
+#    * Redistributions in binary form must reproduce the above copyright
+#      notice, this list of conditions and the following disclaimer in the
+#      documentation and/or other materials provided with the distribution.
+#    * Neither the name of the Willow Garage, Inc. nor the names of its
+#      contributors may be used to endorse or promote products derived from
+#       this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+
+#-*- coding:utf-8 -*-
+
+import rospy
+from geometry_msgs.msg import Twist
+import sys, select, os
+if os.name == 'nt':
+    import msvcrt
+else:
+    import tty, termios
+from sensor_msgs.msg import Image
+from cv_bridge import CvBridge, CvBridgeError
+import cv2
+import numpy as np
+'''
+from PIL import Image
+import tensorflow.compat.v1 as tf
+
+tf.disable_v2_behavior()
+
+X = tf.placeholder(tf.float32, [1, 48, 48, 1])
+Y = tf.placeholder(tf.float32, [1, 3])
+keep_prob = tf.placeholder(tf.float32)
+
+#Similar to training. Takes similar steps to predict the image.
+print(X)
+W1 = tf.Variable(tf.random_normal([3, 3, 1, 32], stddev=0.01))
+L1 = tf.nn.conv2d(X, W1, strides=[1, 1, 1, 1], padding='SAME')
+L1 = tf.nn.relu(L1)
+L1 = tf.nn.max_pool(L1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
+print((L1.get_shape))
+W2 = tf.Variable(tf.random_normal([3, 3, 32, 64], stddev=0.01))
+L2 = tf.nn.conv2d(L1, W2, strides=[1, 1, 1, 1], padding='SAME')
+L2 = tf.nn.relu(L2)
+L2 = tf.nn.max_pool(L2, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
+print((L2.get_shape))
+W3 = tf.Variable(tf.random_normal([3, 3, 64, 128], stddev=0.01))
+L3 = tf.nn.conv2d(L1, W2, strides=[1, 1, 1, 1], padding='SAME')
+L3 = tf.nn.relu(L2)
+L3 = tf.nn.max_pool(L2, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
+print((L3.get_shape))
+W4 = tf.Variable(tf.random_normal([6 * 6 * 64, 512], stddev=0.01))
+L4 = tf.reshape(L3, [-1, 6 * 6 * 64])
+L4 = tf.matmul(L4, W4)
+L4 = tf.nn.relu(L4)
+L4 = tf.nn.dropout(L4, keep_prob)
+print((L4.get_shape))
+W5 = tf.Variable(tf.random_normal([512, 3], stddev=0.01))
+model = tf.matmul(L4, W5)
+print(model)
+
+saver = tf.train.Saver(max_to_keep=10)  #
+
+init = tf.global_variables_initializer()
+sess = tf.Session()
+sess.run(init)
+
+saver.restore(sess,os.path.join(os.getcwd(), 'my_model.ckpt'))
+'''
+def callback(image_msg):
+    try:
+        cv_image = bridge.imgmsg_to_cv2(image_msg, "bgr8")
+        cv2.imshow('raw', cv_image)
+        gray = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
+        #gray_resize = cv2.resize(gray, (48,48))
+        ret,final = cv2.threshold(gray, 10, 255, cv2.THRESH_BINARY)
+        cv2.imshow('now', final)
+        '''
+        ret, frame = cam.read()
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        gray_resize = cv2.resize(gray, (48,48))
+        normalized = np.zeros((48,48))
+        normalized = cv2.normalize(gray_resize, normalized, 0, 255, cv2.NORM_MINMAX)
+        pixel_values = normalized
+        pixel_values = 1.0 * np.asarray(pixel_values)
+        pixel_values = pixel_values / 255
+        X_in = np.reshape(pixel_values, [1, 48, 48, 1])
+        Y_in = np.zeros(3)  # dummy label
+        Y_in = np.reshape(Y_in, [1, 3])
+
+        prob_vector = sess.run([model], feed_dict={X: X_in, Y: Y_in, keep_prob: 1.0})
+        print(prob_vector)
+        maxlocation = np.argmax(prob_vector)
+        '''
+        cv2.waitKey(3);
+    except CvBridgeError as e:
+        print(e)
+
+if __name__=="__main__":
+    if os.name != 'nt':
+        settings = termios.tcgetattr(sys.stdin)
+
+    rospy.init_node('line_type')
+    bridge = CvBridge()
+    rospy.Subscriber('/lower_camera/rgb/image_raw', Image, callback, queue_size=1)
+    rospy.spin()
+
+    if os.name != 'nt':
+        termios.tcsetattr(sys.stdin, termios.TCSADRAIN, settings)
