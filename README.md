@@ -1,4 +1,4 @@
-<img width="80%" src="https://user-images.githubusercontent.com/45442859/127759452-94709305-5444-4a5b-89e4-6a7230c2ad4b.mp4"/>
+![Demo (1)](https://user-images.githubusercontent.com/45442859/127759573-3a3c0d8c-7307-4429-a844-562d636f98fd.gif)
 
 1. describe how to install dependent packages needed to run your code
 
