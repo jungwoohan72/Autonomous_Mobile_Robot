@@ -1,3 +1,11 @@
+# ME400 Capstone Design
+
+## Objective
+1. Overcome the bumps and the slope by tracing black center line in the entrance zone.
+2. Collect the blue balls only without colliding with the obstacles in the ball collecting region.
+3. Dump the collected blue balls in the designated dumping zone where a green ball is located. 
+
+## Demo Video
 ![Demo (1)](https://user-images.githubusercontent.com/45442859/127759573-3a3c0d8c-7307-4429-a844-562d636f98fd.gif)
 
 1. describe how to install dependent packages needed to run your code
