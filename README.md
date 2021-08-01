@@ -8,6 +8,7 @@
 ## Demo Video
 ![Demo (1)](https://user-images.githubusercontent.com/45442859/127759573-3a3c0d8c-7307-4429-a844-562d636f98fd.gif)
 
+## How to install our code?
 1. describe how to install dependent packages needed to run your code
 
 		0) extract the zip file
